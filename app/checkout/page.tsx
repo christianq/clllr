@@ -1,0 +1,88 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import { useCartStore } from '@/app/store/cartStore'; // Import cart store
+import CheckoutForm from '@/app/components/CheckoutForm'; // Import the form component
+
+// Load Stripe outside of the component render to avoid recreating the Stripe object
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+
+export default function CheckoutPage() {
+  const [clientSecret, setClientSecret] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { items: cartItems } = useCartStore(); // Get items from Zustand store
+
+  useEffect(() => {
+    // Function to fetch the client secret
+    const createPaymentIntent = async () => {
+      if (cartItems.length === 0) {
+        setError('Your cart is empty.');
+        setLoading(false);
+        // Optionally redirect back or show a message
+        return;
+      }
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('/api/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          // We send the items here, customerId will be handled in CheckoutForm
+          body: JSON.stringify({ items: cartItems }),
+        });
+
+        if (!response.ok) {
+          const { error: apiError } = await response.json();
+          throw new Error(apiError || 'Failed to create payment intent');
+        }
+
+        const data = await response.json();
+        setClientSecret(data.clientSecret);
+      } catch (err: any) {
+        console.error('Error fetching client secret:', err);
+        setError(err.message || 'An unexpected error occurred.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    createPaymentIntent();
+  }, [cartItems]); // Re-run if cart items change (though ideally checkout is initiated once)
+
+  const appearance: StripeElementsOptions['appearance'] = {
+    theme: 'stripe',
+    // Add other appearance customizations here
+  };
+
+  const options: StripeElementsOptions = {
+    clientSecret,
+    appearance,
+  };
+
+  if (loading) {
+    return <div className="container mx-auto p-4 text-center">Loading checkout...</div>;
+  }
+
+  if (error) {
+    return <div className="container mx-auto p-4 text-center text-red-600">Error: {error}</div>;
+  }
+
+  if (!clientSecret) {
+    // This might happen if the cart was empty initially or fetch failed silently
+    return <div className="container mx-auto p-4 text-center">Could not initialize checkout. Please try again.</div>;
+  }
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold text-center mb-8">Checkout</h1>
+      {/* Pass clientSecret and options to Elements */}
+      <Elements options={options} stripe={stripePromise}>
+        {/* Pass the cart items to the form if needed, or let form access store */}
+        <CheckoutForm />
+      </Elements>
+    </div>
+  );
+}
