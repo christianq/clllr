@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Stripe Cart App
 
-## Getting Started
+A modern, full-stack e-commerce admin and storefront built with Next.js, Convex, and Stripe.
 
-First, run the development server:
+## Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This project is a demo e-commerce platform featuring:
+- A beautiful, responsive product grid and cart UI
+- Real-time product and image management with Convex
+- Stripe integration for product publishing and price syncing
+- Admin interface for product CRUD, image upload, and Stripe sync
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Storefront
+- Responsive homepage with product grid
+- Product variants, swatch galleries, and modern layout
+- Sticky, collapsible sidebar cart with quantity controls
+- Google DM Sans font for headings
+- Fallback image support for missing product images
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Admin Interface (`/admin/products`)
+- View, edit, create, and delete products
+- Upload and manage product images (stored in Convex file storage)
+- Select images for products from Convex
+- Real-time updates via Convex queries/mutations
+- Mark products as "draft" or "published"
+- Publish or update products to Stripe with a single click
+- Full sync: name, description, image, and price are kept in sync with Stripe
+- Only shows "Publish to Stripe" if Convex data differs from Stripe
+- Stripe product and price IDs are stored in Convex for reference
 
-## Learn More
+### Automation & Scripts
+- Script to patch existing products with missing fields (e.g., `status`)
+- Stripe automation script for bulk product creation (optional)
 
-To learn more about Next.js, take a look at the following resources:
+## Tech Stack
+- **Next.js** (App Router)
+- **Convex** (database, file storage, real-time backend)
+- **Stripe** (product, price, and checkout management)
+- **TypeScript** throughout
+- **Tailwind CSS** for styling
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Clone the repo:**
+   ```sh
+   git clone <your-repo-url>
+   cd stripe-cart-app
+   ```
+2. **Install dependencies:**
+   ```sh
+   npm install
+   ```
+3. **Set up environment variables:**
+   - Create a `.env` file in the root with:
+     ```
+     NEXT_PUBLIC_CONVEX_URL=your_convex_url
+     STRIPE_SECRET_KEY=sk_test_...
+     ```
+   - (Optional) Add any other required keys for Next.js or Stripe.
+4. **Start Convex dev server:**
+   ```sh
+   npx convex dev
+   ```
+5. **Start Next.js dev server:**
+   ```sh
+   npm run dev
+   ```
+6. **(Optional) Patch old products:**
+   ```sh
+   node scripts/patchAllProductsStatus.mjs
+   ```
 
-## Deploy on Vercel
+## Usage
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Visit `/` for the storefront.
+- Visit `/admin/products` for the admin interface.
+- Upload images, create/edit products, and publish to Stripe.
+- The admin UI will only show "Publish to Stripe" if the Convex data is out of sync with Stripe.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Stripe & Convex Integration
+- Products and images are managed in Convex.
+- Images are uploaded to Convex file storage and linked to products.
+- Publishing to Stripe creates or updates the product, image, and price on Stripe.
+- Stripe product and price IDs are stored in Convex for future syncs.
+- Price changes create a new Stripe price and deactivate the old one (Stripe prices are immutable).
+
+## Scripts
+- `scripts/patchAllProductsStatus.mjs`: Patches all products to ensure they have a `status` field (run after schema changes).
+
+## License
+MIT (or your preferred license)
