@@ -4,6 +4,9 @@ import { ArrowLineLeft, ArrowLineRight, ShoppingCart } from "@phosphor-icons/rea
 import { useCartStore } from "@/app/store/cartStore";
 import ProductGrid from "./ProductGrid";
 import Cart from "./Cart";
+import { DM_Sans } from "next/font/google";
+
+const dmSans = DM_Sans({ subsets: ["latin"], weight: ["200"] });
 
 export default function HomeLayout({ products }: { products: any[] }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -35,9 +38,9 @@ export default function HomeLayout({ products }: { products: any[] }) {
       {/* Left column: heading only */}
       <div
         id="products-heading-col"
-        className="md:col-span-1 flex flex-col items-start justify-start sticky top-8 h-screen overflow-y-auto"
+        className="md:col-span-1 flex flex-col items-start justify-start sticky top-8 overflow-y-auto"
       >
-        <h1 className="text-3xl font-bold mb-8 text-left">Our Products</h1>
+        <h1 className={`text-3xl font-bold mb-8 text-left ${dmSans.className}`}>Our Products</h1>
       </div>
       {/* Middle column: product grid only */}
       <div

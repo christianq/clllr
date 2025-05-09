@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 const FALLBACK_IMAGE = "/tote-product.png";
 
-export default function ProductImage({ src, alt }: { src: string; alt: string }) {
+export default function ProductImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
   const [imgSrc, setImgSrc] = useState(src);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export default function ProductImage({ src, alt }: { src: string; alt: string })
       alt={alt}
       width={240}
       height={240}
-      className="object-contain mb-4"
+      className={className ? className : "object-contain mb-4"}
       onError={() => setImgSrc(FALLBACK_IMAGE)}
     />
   );

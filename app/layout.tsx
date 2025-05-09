@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ConvexClientProvider } from "./components/ConvexClientProvider";
+import { DM_Sans } from "next/font/google";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,6 +13,8 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700"], variable: "--font-dm-sans" });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${dmSans.className} font-dm-sans antialiased`}
       >
         <ConvexClientProvider>
         {children}

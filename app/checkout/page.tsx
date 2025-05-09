@@ -5,9 +5,12 @@ import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { useCartStore } from '@/app/store/cartStore'; // Import cart store
 import CheckoutForm from '@/app/components/CheckoutForm'; // Import the form component
+import { DM_Sans } from "next/font/google";
 
 // Load Stripe outside of the component render to avoid recreating the Stripe object
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+
+const dmSans = DM_Sans({ subsets: ["latin"], weight: ["200"] });
 
 export default function CheckoutPage() {
   const [clientSecret, setClientSecret] = useState('');
@@ -82,10 +85,10 @@ export default function CheckoutPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold text-center mb-8">Checkout</h1>
+      <h1 className={`text-3xl font-bold text-center mb-8 ${dmSans.className}`}>Checkout</h1>
       {/* Cart summary */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+        <h2 className={`text-xl font-semibold mb-4 ${dmSans.className}`}>Order Summary</h2>
         <table className="w-full text-sm mb-2">
           <thead>
             <tr className="border-b">

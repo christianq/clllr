@@ -4,8 +4,11 @@ import React, { Suspense, useState, useMemo } from "react";
 import AddToCartButton from "./AddToCartButton";
 import ProductImage from "./ProductImage";
 import type { Id } from "../../convex/_generated/dataModel";
+import { DM_Sans } from "next/font/google";
 
 const FALLBACK_IMAGE = "/tote-product.png";
+
+const dmSans = DM_Sans({ subsets: ["latin"], weight: ["200"] });
 
 export interface Product {
   id: string;
@@ -45,31 +48,31 @@ function ProductVariantCard({ variantProducts }: { variantProducts: Product[] })
   const selected = variantProducts[selectedIdx];
 
   return (
-    <div className="border p-4 flex flex-col items-center shadow bg-white dark:bg-gray-900 max-w-[500px] w-full mx-auto">
+    <div className="product-card border p-4 flex flex-col items-center shadow bg-white dark:bg-gray-900 max-w-[500px] w-full mx-auto">
       {/* Main product image container */}
       {selected.images && selected.images[0] ? (
-        <ProductImage src={selected.images[0]} alt={selected.name} />
+        <ProductImage src={selected.images[0]} alt={selected.name} className="w-full" />
       ) : (
-        <Image src={FALLBACK_IMAGE} alt={selected.name} width={240} height={240} className="object-contain mb-4" />
+        <Image src={FALLBACK_IMAGE} alt={selected.name} width={0} height={240} className="object-contain mb-4 w-full" />
       )}
 
       {/* Swatch gallery */}
       {variantProducts.length > 1 && (
         <div className="w-full mb-4">
-          <div className="font-semibold mb-2 text-sm text-left">Variants</div>
+          <div className="font-semibold mb-2 mt-8 text-sm text-left">Variants</div>
           <div className="grid grid-cols-4 gap-2">
             {variantProducts.map((p, idx) => (
-              <div key={p.id} className="flex flex-col items-center">
+              <div key={p.id} className="product-gallery-card flex flex-col items-center w-full">
                 <button
                   onClick={() => setSelectedIdx(idx)}
-                  className={`w-16 h-16 border-2 flex items-center justify-center transition-all bg-white ${selectedIdx === idx ? 'border-blue-600 scale-105' : 'border-gray-300'}`}
+                  className={`w-16 aspect-square border-2 flex items-center justify-center transition-all bg-white ${selectedIdx === idx ? 'border-blue-600 scale-105' : 'border-gray-300'} w-full`}
                   title={p.metadata?.color || p.name}
                   style={{}}
                 >
                   <img
                     src={p.images && p.images[0] ? p.images[0] : FALLBACK_IMAGE}
                     alt={p.metadata?.color || p.name}
-                    className="w-14 h-14 object-cover"
+                    className="w-full aspect-square object-cover"
                     style={{}}
                   />
                 </button>
@@ -81,7 +84,7 @@ function ProductVariantCard({ variantProducts }: { variantProducts: Product[] })
           </div>
         </div>
       )}
-      <h2 className="text-xl font-semibold mb-2 text-center">{selected.name}</h2>
+      <h2 className={`text-xl font-semibold mb-2 text-center ${dmSans.className}`}>{selected.name}</h2>
       <p className="text-gray-600 dark:text-gray-300 mb-2 text-center">{selected.description}</p>
       {selected.price ? (
         <div className="text-lg font-bold mb-4">${(selected.price / 100).toFixed(2)} {selected.currency?.toUpperCase()}</div>
