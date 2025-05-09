@@ -46,10 +46,9 @@ export async function POST(req: NextRequest) {
       amount: amount // Optionally return amount for display
     });
 
-  } catch (err: any) {
-    console.error('Error creating PaymentIntent:', err);
-    const errorMessage =
-      err instanceof Error ? err.message : 'Internal Server Error';
+  } catch (error: unknown) {
+    console.error('Error creating PaymentIntent:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

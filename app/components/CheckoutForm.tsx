@@ -28,7 +28,6 @@ export default function CheckoutForm() {
   const stripe = useStripe();
   const elements = useElements();
 
-  const [email, setEmail] = useState(''); // For LinkAuthenticationElement
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -153,7 +152,7 @@ export default function CheckoutForm() {
           id="customer-select"
           value={selectedCustomerId}
           onChange={(e) => setSelectedCustomerId(e.target.value)}
-          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border"
           disabled={isLoading}
         >
           <option value="" disabled>-- Select a customer --</option>
@@ -171,7 +170,7 @@ export default function CheckoutForm() {
       {/* Optional: Email input for Link (Stripe's fast checkout) */}
       <LinkAuthenticationElement
         id="link-authentication-element"
-        // @ts-ignore - Stripe types might be slightly off depending on version
+        // @ts-expect-error - Stripe types might be slightly off depending on version
         onChange={(e) => setEmail(e.target.value)}
         className="mb-4"
       />
@@ -182,7 +181,7 @@ export default function CheckoutForm() {
       <button
         disabled={isLoading || !stripe || !elements}
         id="submit"
-        className={`w-full py-2 px-4 rounded text-white font-semibold ${
+        className={`w-full py-2 px-4 text-white font-semibold ${
           isLoading || !stripe || !elements
             ? 'bg-gray-400 cursor-not-allowed'
             : 'bg-indigo-600 hover:bg-indigo-700'

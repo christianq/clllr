@@ -15,6 +15,9 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
   const { items: cartItems } = useCartStore(); // Get items from Zustand store
 
+  // Calculate total
+  const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
   useEffect(() => {
     // Function to fetch the client secret
     const createPaymentIntent = async () => {
@@ -41,9 +44,11 @@ export default function CheckoutPage() {
 
         const data = await response.json();
         setClientSecret(data.clientSecret);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching client secret:', err);
-        setError(err.message || 'An unexpected error occurred.');
+        setError(
+          err instanceof Error ? err.message : 'An unknown error occurred.'
+        );
       } finally {
         setLoading(false);
       }
@@ -78,6 +83,31 @@ export default function CheckoutPage() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold text-center mb-8">Checkout</h1>
+      {/* Cart summary */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+        <table className="w-full text-sm mb-2">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left py-2">Product</th>
+              <th className="text-center py-2">Qty</th>
+              <th className="text-right py-2">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cartItems.map((item) => (
+              <tr key={item.id} className="border-b last:border-b-0">
+                <td className="py-2">{item.name}</td>
+                <td className="text-center py-2">{item.quantity}</td>
+                <td className="text-right py-2">${((item.price * item.quantity) / 100).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="text-right font-bold text-lg mt-2">
+          Total: ${(totalAmount / 100).toFixed(2)}
+        </div>
+      </div>
       {/* Pass clientSecret and options to Elements */}
       <Elements options={options} stripe={stripePromise}>
         {/* Pass the cart items to the form if needed, or let form access store */}

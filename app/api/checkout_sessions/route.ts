@@ -48,11 +48,11 @@ export async function POST(req: NextRequest) {
     // Return the session ID
     return NextResponse.json({ sessionId: session.id });
 
-  } catch (err: any) {
-    console.error('Error creating Stripe session:', err);
+  } catch (error: unknown) {
+    console.error('Error creating Stripe session:', error);
     // Return a generic error message or more specific based on err.type
     const errorMessage =
-      err instanceof Error ? err.message : 'Internal Server Error';
+      error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
