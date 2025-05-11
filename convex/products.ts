@@ -1,4 +1,4 @@
-import { query, mutation, action } from "./_generated/server";
+import { query, mutation, action, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 import { api } from "./_generated/api";
@@ -14,6 +14,9 @@ export const listProducts = query({
     return products.map(product => ({
       ...product,
       image: imageMap[product.imageId] || null,
+      // Convert originalPrice and dealPrice to numbers (in cents) if present
+      originalPrice: product.originalPrice ? Number(product.originalPrice) : null,
+      dealPrice: product.dealPrice ? Number(product.dealPrice) : null,
     }));
   },
 });
@@ -30,6 +33,9 @@ export const upsertProduct = mutation({
     stripeProductId: v.optional(v.string()),
     stripePriceId: v.optional(v.string()),
     status: v.optional(v.string()),
+    originalPrice: v.optional(v.string()),
+    dealPrice: v.optional(v.string()),
+    dealExpiresAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     if (args.id) {
@@ -43,6 +49,9 @@ export const upsertProduct = mutation({
         stripeProductId: args.stripeProductId,
         stripePriceId: args.stripePriceId,
         status: args.status,
+        originalPrice: args.originalPrice,
+        dealPrice: args.dealPrice,
+        dealExpiresAt: args.dealExpiresAt,
       });
       return args.id;
     } else {
@@ -56,6 +65,9 @@ export const upsertProduct = mutation({
         stripeProductId: args.stripeProductId,
         stripePriceId: args.stripePriceId,
         status: args.status ?? "draft",
+        originalPrice: args.originalPrice,
+        dealPrice: args.dealPrice,
+        dealExpiresAt: args.dealExpiresAt,
       });
     }
   },
@@ -235,5 +247,25 @@ export const getStripeProduct = action({
     } catch (err: any) {
       return { error: err.message || "Unknown error" };
     }
+  },
+});
+
+export const internalClearExpiredDeals = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now() / 1000; // seconds since epoch
+    const products = await ctx.db.query("products").collect();
+    let count = 0;
+    for (const product of products) {
+      if (product.dealExpiresAt && product.dealExpiresAt < now) {
+        await ctx.db.patch(product._id, {
+          dealPrice: undefined,
+          originalPrice: undefined,
+          dealExpiresAt: undefined,
+        });
+        count++;
+      }
+    }
+    return { cleared: count };
   },
 });

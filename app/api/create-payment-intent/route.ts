@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { CartItem } from '@/app/store/cartStore'; // Assuming CartItem is defined here
+import { CartItem } from '../../store/cartStore'; // Assuming CartItem is defined here
 
 // Initialize Stripe with the secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {

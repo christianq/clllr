@@ -23,6 +23,9 @@ export interface Product {
     category?: string;
     variant_name?: string;
   };
+  originalPrice?: number | null;
+  dealPrice?: number | null;
+  dealExpiresAt?: number | null;
 }
 
 interface Filters {
@@ -86,7 +89,13 @@ function ProductVariantCard({ variantProducts }: { variantProducts: Product[] })
       )}
       <h2 className={`text-xl font-semibold mb-2 text-center ${dmSans.className}`}>{selected.name}</h2>
       <p className="text-gray-600 dark:text-gray-300 mb-2 text-center">{selected.description}</p>
-      {selected.price ? (
+      {selected.dealPrice && selected.originalPrice && selected.dealPrice < selected.originalPrice ? (
+        <div className="text-lg font-bold mb-4 flex flex-col items-center">
+          <span className="text-red-600">${(selected.dealPrice / 100).toFixed(2)} {selected.currency?.toUpperCase()}</span>
+          <span className="line-through text-gray-500 text-base">${(selected.originalPrice / 100).toFixed(2)} {selected.currency?.toUpperCase()}</span>
+          <span className="text-green-600 text-sm font-semibold">{Math.round(100 - (selected.dealPrice / selected.originalPrice) * 100)}% off</span>
+        </div>
+      ) : selected.price ? (
         <div className="text-lg font-bold mb-4">${(selected.price / 100).toFixed(2)} {selected.currency?.toUpperCase()}</div>
       ) : (
         <div className="text-lg font-bold mb-4 text-gray-400">No price</div>

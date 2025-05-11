@@ -3,6 +3,12 @@ import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { Alert } from "@/components/ui/alert";
 
 interface ProductPhoto {
   _id?: Id<"products">;
@@ -16,6 +22,9 @@ interface ProductPhoto {
   status: string;
   stripeProductId?: string;
   stripePriceId?: string;
+  originalPrice?: string;
+  dealPrice?: string;
+  dealExpiresAt?: number;
 }
 
 function DisplayImage({ fileId, alt }: { fileId: Id<"_storage">, alt: string }) {
@@ -104,66 +113,68 @@ function ProductCard({
     edit.status === "draft" ||
     (edit.status === "published" && edit.stripeProductId && isConvexDifferentFromStripe(edit, stripeData));
   return (
-    <div key={id as string} className="bg-white rounded shadow p-4 flex flex-col items-center">
-      {/* Draft badge */}
-      {edit.status === "draft" && (
-        <span className="mb-2 px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded-full">Draft</span>
-      )}
-      {edit.status === "published" && (
-        <span className="mb-2 px-2 py-1 bg-green-200 text-green-800 text-xs rounded-full">Published</span>
-      )}
-      {edit.image && edit.image.fileId ? (
-        <DisplayImage fileId={edit.image.fileId} alt={edit.filename} />
-      ) : (
-        <div className="w-full aspect-square bg-gray-100 flex items-center justify-center mb-4 text-gray-400">No image</div>
-      )}
-      <div className="w-full flex flex-col gap-2">
-        <label className="text-xs font-semibold">Type
-          <input
-            className="border rounded px-2 py-1 w-full"
-            value={edit.type}
-            onChange={(e) => handleEdit(id as string, "type", e.target.value)}
-          />
-        </label>
-        <label className="text-xs font-semibold">Title
-          <input
-            className="border rounded px-2 py-1 w-full"
-            value={edit.title}
-            onChange={(e) => handleEdit(id as string, "title", e.target.value)}
-          />
-        </label>
-        <label className="text-xs font-semibold">Color
-          <input
-            className="border rounded px-2 py-1 w-full"
-            value={edit.color}
-            onChange={(e) => handleEdit(id as string, "color", e.target.value)}
-          />
-        </label>
-        <label className="text-xs font-semibold">Price
-          <input
-            className="border rounded px-2 py-1 w-full"
-            value={edit.price}
-            onChange={(e) => handleEdit(id as string, "price", e.target.value)}
-          />
-        </label>
-        <label className="text-xs font-semibold">Image
-          <select
-            className="border rounded px-2 py-1 w-full"
-            value={edit.imageId}
-            onChange={(e) => handleImageEdit(id as string, e.target.value as Id<"images">)}
-          >
-            {images.map((img: Doc<"images">) => (
-              <option key={img._id as string} value={img._id as string}>
-                {img.fileId ? `${String(img.fileId).slice(0, 8)}...` : "No fileId"}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      {showPublishButton && (
-        <button
-          className="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-          onClick={async () => {
+    <Card key={id as string} className="w-full max-w-md mb-6">
+      <CardContent className="flex flex-col items-center">
+        {/* Draft/Published badge */}
+        {edit.status === "draft" && (
+          <Alert variant="default" className="mb-2 bg-yellow-100 text-yellow-800">Draft</Alert>
+        )}
+        {edit.status === "published" && (
+          <Alert variant="default" className="mb-2 bg-green-100 text-green-800">Published</Alert>
+        )}
+        {edit.image && edit.image.fileId ? (
+          <DisplayImage fileId={edit.image.fileId} alt={edit.filename} />
+        ) : (
+          <div className="w-full aspect-square bg-gray-100 flex items-center justify-center mb-4 text-gray-400">No image</div>
+        )}
+        <div className="w-full flex flex-col gap-2">
+          <Label>Type
+            <Input value={edit.type} onChange={e => handleEdit(id as string, "type", e.target.value)} />
+          </Label>
+          <Label>Title
+            <Input value={edit.title} onChange={e => handleEdit(id as string, "title", e.target.value)} />
+          </Label>
+          <Label>Color
+            <Input value={edit.color} onChange={e => handleEdit(id as string, "color", e.target.value)} />
+          </Label>
+          <Label>Price
+            <Input value={edit.price} onChange={e => handleEdit(id as string, "price", e.target.value)} />
+          </Label>
+          <Label>Image
+            <Select value={edit.imageId as string} onValueChange={val => handleImageEdit(id as string, val as Id<"images">)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select image" />
+              </SelectTrigger>
+              <SelectContent>
+                {images.map((img: Doc<"images">) => (
+                  <SelectItem key={img._id as string} value={img._id as string}>
+                    {img.fileId ? `${String(img.fileId).slice(0, 8)}...` : "No fileId"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Label>
+          <Label>Deal Price (cents)
+            <Input type="number" value={edit.dealPrice ?? ""} onChange={e => handleEdit(id as string, "dealPrice", e.target.value)} placeholder="e.g. 399" />
+          </Label>
+          <Label>Original Price (cents)
+            <Input type="number" value={edit.originalPrice ?? ""} onChange={e => handleEdit(id as string, "originalPrice", e.target.value)} placeholder="e.g. 499" />
+          </Label>
+          <Label>Deal Expires At (timestamp, optional)
+            <Input type="number" value={edit.dealExpiresAt ?? ""} onChange={e => handleEdit(id as string, "dealExpiresAt", e.target.value)} placeholder="e.g. 1712345678" />
+          </Label>
+          {(edit.dealPrice || edit.originalPrice) && (
+            <Button variant="secondary" className="mt-2 text-xs" onClick={() => {
+              handleEdit(id as string, "dealPrice", "");
+              handleEdit(id as string, "originalPrice", "");
+              handleEdit(id as string, "dealExpiresAt", "");
+            }}>
+              Remove Deal
+            </Button>
+          )}
+        </div>
+        {showPublishButton && (
+          <Button className="mt-4 bg-purple-600 text-white hover:bg-purple-700" onClick={async () => {
             setStatus("Publishing to Stripe...");
             const result = await publishToStripe({ id });
             if (result && "stripeProductId" in result) {
@@ -171,25 +182,18 @@ function ProductCard({
             } else {
               setStatus(result && "error" in result ? result.error : "Failed to publish");
             }
-          }}
-        >
-          Publish to Stripe
-        </button>
-      )}
-      <button
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-        onClick={() => handleSave(id as string)}
-        disabled={!isProductChanged(product, edit)}
-      >
-        Save
-      </button>
-      <button
-        className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        onClick={() => handleDelete(id)}
-      >
-        Delete
-      </button>
-    </div>
+          }}>
+            Publish to Stripe
+          </Button>
+        )}
+        <Button className="mt-4 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50" onClick={() => handleSave(id as string)} disabled={!isProductChanged(product, edit)}>
+          Save
+        </Button>
+        <Button variant="destructive" className="mt-2" onClick={() => handleDelete(id)}>
+          Delete
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -238,6 +242,9 @@ export default function AdminProductPhotos() {
         status: edited.status,
         stripeProductId: edited.stripeProductId,
         stripePriceId: edited.stripePriceId,
+        originalPrice: edited.originalPrice,
+        dealPrice: edited.dealPrice,
+        dealExpiresAt: edited.dealExpiresAt ? Number(edited.dealExpiresAt) : undefined,
       });
       setStatus("Saved successfully!");
       setEditing((prev) => {
@@ -309,38 +316,41 @@ export default function AdminProductPhotos() {
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-8">Admin: Product Photos</h1>
-      <div className="mb-8">
-        <input type="file" accept="image/*" onChange={handleFileChange} />
+    <main className="min-h-screen bg-muted flex flex-col items-center py-12 px-4">
+      <div className="w-full max-w-4xl mx-auto">
+        <header className="mb-10 flex flex-col items-center">
+          <h1 className="text-4xl font-bold mb-2 tracking-tight">Admin: Product Photos</h1>
+          <p className="text-muted-foreground text-lg mb-4">Manage your product catalog, images, and deals</p>
+          <div className="w-full border-b border-border/40 mb-6" />
+        </header>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <Input type="file" accept="image/*" onChange={handleFileChange} className="sm:w-1/2" />
+          <Button className="bg-green-600 text-white hover:bg-green-700 w-full sm:w-auto" onClick={handleCreate}>
+            New Product
+          </Button>
+        </div>
+        {status && <Alert className="mb-8 text-blue-600 text-base font-medium rounded-lg shadow-sm">{status}</Alert>}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {products.map((product: ProductPhoto) => {
+            const id = product._id as Id<"products">;
+            const edit = editing[id as string] || product;
+            return (
+              <ProductCard
+                key={id as string}
+                product={product}
+                edit={edit}
+                images={images}
+                handleEdit={handleEdit}
+                handleImageEdit={handleImageEdit}
+                handleSave={handleSave}
+                handleDelete={handleDelete}
+                publishToStripe={publishToStripe}
+                setStatus={setStatus}
+              />
+            );
+          })}
+        </div>
       </div>
-      <button
-        className="mb-8 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-        onClick={handleCreate}
-      >
-        New Product
-      </button>
-      {status && <div className="mb-4 text-blue-600">{status}</div>}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {products.map((product: ProductPhoto) => {
-          const id = product._id as Id<"products">;
-          const edit = editing[id as string] || product;
-          return (
-            <ProductCard
-              key={id as string}
-              product={product}
-              edit={edit}
-              images={images}
-              handleEdit={handleEdit}
-              handleImageEdit={handleImageEdit}
-              handleSave={handleSave}
-              handleDelete={handleDelete}
-              publishToStripe={publishToStripe}
-              setStatus={setStatus}
-            />
-          );
-        })}
-      </div>
-    </div>
+    </main>
   );
 }

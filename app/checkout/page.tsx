@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import { useCartStore } from '@/app/store/cartStore'; // Import cart store
-import CheckoutForm from '@/app/components/CheckoutForm'; // Import the form component
+import { useCartStore } from '../store/cartStore'; // Import cart store
+import CheckoutForm from '../components/CheckoutForm'; // Import the form component
 import { DM_Sans } from "next/font/google";
 
 // Load Stripe outside of the component render to avoid recreating the Stripe object

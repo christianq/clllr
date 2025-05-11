@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { CartItem } from '@/app/store/cartStore'; // Import CartItem type
+import { CartItem } from '../../store/cartStore'; // Import CartItem type
 
 // Initialize Stripe with the secret key
 // Ensure your Stripe secret key is set in .env.local

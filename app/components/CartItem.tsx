@@ -39,7 +39,17 @@ export default function CartItem({ item, addItem, removeItem, decreaseQuantity }
         </div>
         <div className="cart-item-actions flex items-center gap-2">
           <span id={`cart-item-subtotal-${item.id}`} className="cart-item-subtotal min-w-[60px] text-right">
-            {typeof item.price === 'number' ? `$${((item.price * item.quantity) / 100).toFixed(2)}` : <span className="text-gray-400">No price</span>}
+            {item.dealPrice && item.originalPrice && item.dealPrice < item.originalPrice ? (
+              <span>
+                <span className="text-red-600 font-bold">${((item.dealPrice * item.quantity) / 100).toFixed(2)}</span>
+                <span className="line-through text-gray-500 ml-2">${((item.originalPrice * item.quantity) / 100).toFixed(2)}</span>
+                <span className="text-green-600 text-xs ml-2">{Math.round(100 - (item.dealPrice / item.originalPrice) * 100)}% off</span>
+              </span>
+            ) : typeof item.price === 'number' ? (
+              `$${((item.price * item.quantity) / 100).toFixed(2)}`
+            ) : (
+              <span className="text-gray-400">No price</span>
+            )}
           </span>
           <button
             id={`remove-item-${item.id}`}

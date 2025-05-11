@@ -17,5 +17,8 @@ export default defineSchema({
     stripeProductId: v.optional(v.string()),
     stripePriceId: v.optional(v.string()),
     status: v.string(), // "draft" or "published"
+    originalPrice: v.optional(v.string()), // store the original price if a deal is active
+    dealPrice: v.optional(v.string()), // store the deal price if a deal is active
+    dealExpiresAt: v.optional(v.number()), // optional: timestamp for when the deal ends
   }),
 });

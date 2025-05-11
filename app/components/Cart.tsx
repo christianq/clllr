@@ -1,8 +1,8 @@
 'use client';
 
-import { useCartStore } from '@/app/store/cartStore';
+import { useCartStore } from "../store/cartStore";
 import { useRouter } from 'next/navigation';
-import type { Product as StoreProduct } from "@/app/store/cartStore";
+import type { Product as StoreProduct } from "../store/cartStore";
 import type { Product as GridProduct } from "./ProductGrid";
 import { Trash } from "@phosphor-icons/react";
 import CartList from "./CartList";
@@ -11,7 +11,7 @@ import { DM_Sans } from "next/font/google";
 
 const dmSans = DM_Sans({ subsets: ["latin"], weight: ["200"] });
 
-export default function Cart() {
+export default function Cart({ hideTitle = false }: { hideTitle?: boolean }) {
   const { items, addItem, removeItem, clearCart } = useCartStore();
   const router = useRouter();
 
@@ -50,9 +50,11 @@ export default function Cart() {
 
   return (
     <div id="cart-container" className="p-4">
-      <h2 id="cart-title" className={`text-2xl font-semibold mb-4 ${dmSans.className}`}>
-        Shopping Cart{totalQty > 0 && <span id="cart-item-count" className="text-base font-normal ml-2">({totalQty} item{totalQty !== 1 ? 's' : ''})</span>}
-      </h2>
+      {!hideTitle && (
+        <h2 id="cart-title" className={`text-2xl font-semibold mb-4 ${dmSans.className}`}>
+          Shopping Cart{totalQty > 0 && <span id="cart-item-count" className="text-base font-normal ml-2">({totalQty} item{totalQty !== 1 ? 's' : ''})</span>}
+        </h2>
+      )}
       <CartList
         items={items}
         addItem={handleAddItem}
