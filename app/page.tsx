@@ -17,7 +17,7 @@ async function getProducts() {
 export default async function Home() {
   const products = await getProducts();
   return (
-    <div className="min-h-screen px-8 py-0 sm:p-20 sm:py-0 font-[family-name:var(--font-geist-sans)]">
+    <div className="min-h-screen lg:px-8 px-0 font-[family-name:var(--font-geist-sans)]">
       <HomeLayout products={products} />
     </div>
   );

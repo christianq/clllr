@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useCartStore } from "../store/cartStore";
 import type { Product } from "./ProductGrid";
+import { Button } from "@/components/ui/button";
 
 export default function AddToCartButton({ product }: { product: Product }) {
   const addItem = useCartStore((state) => state.addItem);
@@ -21,13 +22,13 @@ export default function AddToCartButton({ product }: { product: Product }) {
   };
 
   return (
-    <button
+    <Button
       onClick={handleAdd}
       disabled={!product.price || added}
       className={`w-full py-2 px-4 text-white font-semibold transition-colors
         ${!product.price ? 'bg-gray-400 cursor-not-allowed' : added ? 'bg-green-500' : 'bg-blue-600 hover:bg-blue-700'}`}
     >
       {added ? 'Added!' : 'Add to Cart'}
-    </button>
+    </Button>
   );
 }

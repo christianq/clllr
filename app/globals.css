@@ -51,6 +51,10 @@ body {
   font-family: var(--font-dm-sans), 'DM Sans', Arial, sans-serif;
 }
 
+.font-vt323 {
+  font-family: var(--font-vt323), 'VT323', monospace;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);

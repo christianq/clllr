@@ -65,7 +65,7 @@ This project is a demo e-commerce platform featuring:
    ```
 5. **Start Next.js dev server:**
    ```sh
-   npm run dev
+npm run dev
    ```
 6. **(Optional) Patch old products:**
    ```sh
