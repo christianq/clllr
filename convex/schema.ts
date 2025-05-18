@@ -21,4 +21,12 @@ export default defineSchema({
     dealPrice: v.optional(v.string()), // store the deal price if a deal is active
     dealExpiresAt: v.optional(v.number()), // optional: timestamp for when the deal ends
   }),
+  analytics_events: defineTable({
+    type: v.string(), // e.g. 'page_view', 'click'
+    timestamp: v.number(),
+    userId: v.optional(v.string()), // or v.id('users') if you have users
+    path: v.string(),
+    element: v.optional(v.string()),
+    extra: v.optional(v.any()),
+  }),
 });
