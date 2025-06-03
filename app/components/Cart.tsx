@@ -2,16 +2,15 @@
 
 import { useCartStore } from "../store/cartStore";
 import { useRouter } from 'next/navigation';
-import type { Product as StoreProduct } from "../store/cartStore";
-import type { Product as GridProduct } from "./ProductGrid";
+import type { Product } from "../../types/product";
 import { Trash } from "@phosphor-icons/react";
 import CartList from "./CartList";
-import CartSummary from "./CartSummary";
+import CartFooter from "./CartFooter";
 import { DM_Sans } from "next/font/google";
 
 const dmSans = DM_Sans({ subsets: ["latin"], weight: ["200"] });
 
-export default function Cart({ hideTitle = false }: { hideTitle?: boolean }) {
+export default function Cart({ hideTitle = false, header }: { hideTitle?: boolean; header?: React.ReactNode }) {
   const { items, addItem, removeItem, clearCart } = useCartStore();
   const router = useRouter();
 
@@ -22,12 +21,8 @@ export default function Cart({ hideTitle = false }: { hideTitle?: boolean }) {
   const totalQty = items.reduce((acc, item) => acc + item.quantity, 0);
 
   // Decrease quantity, but only remove if user clicks the remove (x) button
-  const decreaseQuantity = (item: GridProduct & { quantity: number }) => {
+  const decreaseQuantity = (item: Product & { quantity: number }) => {
     if (item.quantity > 1) {
-      // Remove one unit by adding a new removeItem that decreases quantity
-      // We'll need to update the store logic, but for now, call addItem with negative quantity
-      // Instead, let's call addItem with a negative quantity if store supports it, otherwise, implement here
-      // For now, we can call removeItem and re-add with quantity-1
       useCartStore.setState((state) => ({
         items: state.items.map((i) =>
           i.id === item.id ? { ...i, quantity: i.quantity - 1 } : i
@@ -37,9 +32,9 @@ export default function Cart({ hideTitle = false }: { hideTitle?: boolean }) {
   };
 
   // Helper to safely add item with price: number
-  const handleAddItem = (item: GridProduct) => {
+  const handleAddItem = (item: Product) => {
     if (typeof item.price === 'number') {
-      addItem(item as StoreProduct);
+      addItem(item);
     }
   };
 
@@ -49,26 +44,29 @@ export default function Cart({ hideTitle = false }: { hideTitle?: boolean }) {
   };
 
   return (
-    <div id="cart-container" className="p-4">
-      {!hideTitle && (
-        <h2 id="cart-title" className={`text-2xl font-semibold mb-4 ${dmSans.className}`}>
-          Shopping Cart{totalQty > 0 && <span id="cart-item-count" className="text-base font-normal ml-2">({totalQty} item{totalQty !== 1 ? 's' : ''})</span>}
-        </h2>
-      )}
-      <CartList
-        items={items}
-        addItem={handleAddItem}
-        removeItem={removeItem}
-        decreaseQuantity={decreaseQuantity}
-      />
-      {items.length > 0 && (
-        <CartSummary
-          totalAmount={totalAmount}
-          itemCount={items.length}
-          handleCheckout={handleCheckout}
-          clearCart={clearCart}
+    <div
+      id="cart-container"
+      className="p-4"
+      role="complementary"
+      aria-labelledby="cart-title"
+    >
+      {header}
+      <div id="cart-content">
+        <CartList
+          items={items}
+          addItem={handleAddItem}
+          removeItem={removeItem}
+          decreaseQuantity={decreaseQuantity}
         />
-      )}
+        {items.length > 0 && (
+          <CartFooter
+            totalAmount={totalAmount / 100}
+            itemCount={items.length}
+            handleCheckout={handleCheckout}
+            clearCart={clearCart}
+          />
+        )}
+      </div>
     </div>
   );
 }

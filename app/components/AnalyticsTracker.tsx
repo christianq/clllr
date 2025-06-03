@@ -48,6 +48,7 @@ export default function AnalyticsTracker() {
 
   // Log page view on mount or path change
   useEffect(() => {
+    if (safePath.startsWith("/admin/analytics")) return;
     logEvent({
       type: "page_view",
       timestamp: Date.now(),
@@ -60,6 +61,7 @@ export default function AnalyticsTracker() {
 
   // Log click events
   useEffect(() => {
+    if (safePath.startsWith("/admin/analytics")) return;
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const productElement = target.closest("[data-analytics-id^='product:']") as HTMLElement | null;

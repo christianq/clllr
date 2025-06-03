@@ -31,6 +31,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="p:domain_verify" content="6c4dc38174aed8ad92356615993618c2" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${dmSans.className} ${vt323.variable} font-dm-sans antialiased`}
       >

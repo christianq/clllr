@@ -5,16 +5,35 @@ import { api } from "./_generated/api";
 import type { Doc } from "./_generated/dataModel";
 
 export const listProducts = query({
-  args: {},
-  handler: async (ctx) => {
-    const products = await ctx.db.query("products").collect();
+  args: { ownerId: v.optional(v.id("users")) },
+  handler: async (ctx, args) => {
+    let products;
+    if (args.ownerId !== undefined) {
+      products = await ctx.db.query("products").withIndex("by_ownerId", (q) => q.eq("ownerId", args.ownerId!)).collect();
+    } else {
+      products = await ctx.db.query("products").collect();
+    }
     // Join with images
     const images = await ctx.db.query("images").collect();
     const imageMap = Object.fromEntries(images.map(img => [img._id, img]));
     return products.map(product => ({
       ...product,
       image: imageMap[product.imageId] || null,
-      // Convert originalPrice and dealPrice to numbers (in cents) if present
+      originalPrice: product.originalPrice ? Number(product.originalPrice) : null,
+      dealPrice: product.dealPrice ? Number(product.dealPrice) : null,
+    }));
+  },
+});
+
+export const listProductsByOwner = query({
+  args: { ownerId: v.id("users") },
+  handler: async (ctx, args) => {
+    const products = await ctx.db.query("products").withIndex("by_ownerId", (q) => q.eq("ownerId", args.ownerId)).collect();
+    const images = await ctx.db.query("images").collect();
+    const imageMap = Object.fromEntries(images.map(img => [img._id, img]));
+    return products.map(product => ({
+      ...product,
+      image: imageMap[product.imageId] || null,
       originalPrice: product.originalPrice ? Number(product.originalPrice) : null,
       dealPrice: product.dealPrice ? Number(product.dealPrice) : null,
     }));
@@ -36,6 +55,7 @@ export const upsertProduct = mutation({
     originalPrice: v.optional(v.string()),
     dealPrice: v.optional(v.string()),
     dealExpiresAt: v.optional(v.number()),
+    ownerId: v.id("users"),
   },
   handler: async (ctx, args) => {
     if (args.id) {
@@ -52,6 +72,7 @@ export const upsertProduct = mutation({
         originalPrice: args.originalPrice,
         dealPrice: args.dealPrice,
         dealExpiresAt: args.dealExpiresAt,
+        ownerId: args.ownerId,
       });
       return args.id;
     } else {
@@ -68,6 +89,7 @@ export const upsertProduct = mutation({
         originalPrice: args.originalPrice,
         dealPrice: args.dealPrice,
         dealExpiresAt: args.dealExpiresAt,
+        ownerId: args.ownerId,
       });
     }
   },
@@ -143,6 +165,7 @@ export const publishToStripe = action({
             status: product.status,
             stripeProductId: product.stripeProductId,
             stripePriceId: newPriceId,
+            ownerId: product.ownerId,
           });
         }
         return { stripeProductId: product.stripeProductId };
@@ -171,6 +194,7 @@ export const publishToStripe = action({
           status: product.status,
           stripeProductId: stripeProduct.id,
           stripePriceId: newPrice.id,
+          ownerId: product.ownerId,
         });
         return { stripeProductId: stripeProduct.id };
       }
@@ -267,5 +291,18 @@ export const internalClearExpiredDeals = internalMutation({
       }
     }
     return { cleared: count };
+  },
+});
+
+export const setAllProductsOwner = mutation({
+  args: { ownerId: v.id("users") },
+  handler: async (ctx, args) => {
+    const products = await ctx.db.query("products").collect();
+    for (const product of products) {
+      if (!product.ownerId) {
+        await ctx.db.patch(product._id, { ownerId: args.ownerId });
+      }
+    }
+    return null;
   },
 });

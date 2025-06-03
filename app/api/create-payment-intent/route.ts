@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 
 // Function to calculate order amount (make sure prices are in cents)
 const calculateOrderAmount = (items: CartItem[]): number => {
-  return items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  return items.reduce((acc, item) => acc + (typeof item.price === 'number' ? item.price * item.quantity : 0), 0);
 };
 
 export async function POST(req: NextRequest) {

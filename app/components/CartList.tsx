@@ -1,5 +1,6 @@
 import CartItem from "./CartItem";
-import type { Product } from "./ProductGrid";
+import CartEmpty from "./CartEmpty";
+import type { Product } from "../../types/product";
 
 interface CartListProps {
   items: Array<Product & { quantity: number }>;
@@ -10,7 +11,7 @@ interface CartListProps {
 
 export default function CartList({ items, addItem, removeItem, decreaseQuantity }: CartListProps) {
   if (items.length === 0) {
-    return <p id="cart-empty-message" className="text-gray-500">Your cart is empty.</p>;
+    return <CartEmpty />;
   }
   return (
     <ul id="cart-item-list" className="space-y-2 mb-4">

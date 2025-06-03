@@ -1,15 +1,7 @@
 import { create } from 'zustand';
+import type { Product, CartItem as ImportedCartItem } from '../../types/product';
 
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  // Add other product details like image URL if needed
-}
-
-export interface CartItem extends Product {
-  quantity: number;
-}
+export type CartItem = ImportedCartItem;
 
 interface CartState {
   items: CartItem[];

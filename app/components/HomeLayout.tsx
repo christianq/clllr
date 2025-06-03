@@ -7,6 +7,7 @@ import Cart from "./Cart";
 import { DM_Sans, VT323 } from "next/font/google";
 import { Button } from "@/components/ui/button";
 import Filter, { Filters } from "./Filter";
+import CartHeader from "./CartHeader";
 
 const dmSans = DM_Sans({ subsets: ["latin"], weight: ["200"] });
 const vt323 = VT323({ subsets: ["latin"], weight: ["400"] });
@@ -207,16 +208,11 @@ export default function HomeLayout({ products }: { products: any[] }) {
         className={`sticky top-8 flex flex-col items-center lg:items-end ${columnTransitionClass} ${collapsed ? "max-w-[50px] w-[50px]" : "max-w-xs w-full lg:max-w-[25%] lg:w-[25%]"} hidden lg:flex`}
       >
         <div className={`flex items-center w-full mb-4 ${collapsed ? "justify-center" : "justify-between"}`}>
-          {!collapsed && (
-            <h2 id="cart-title" className={`text-2xl font-semibold ${dmSans.className} ml-2`}>Shopping Cart{totalQty > 0 && <span id="cart-item-count" className="text-base font-normal ml-2">({totalQty} item{totalQty !== 1 ? 's' : ''})</span>}</h2>
-          )}
-          <button
-            className="w-[50px] h-[50px] flex-shrink-0 flex items-center justify-center text-gray-700 hover:text-gray-900"
-            onClick={() => setCollapsed((c) => !c)}
-            title={collapsed ? "Show Cart" : "Collapse Cart"}
-          >
-            {collapsed ? <ArrowLineLeft size={28} /> : <ArrowLineRight size={28} />}
-          </button>
+          <CartHeader
+            itemCount={totalQty}
+            collapsed={collapsed}
+            onCollapseToggle={() => setCollapsed((c) => !c)}
+          />
         </div>
         <div
           className={`flex flex-col items-center w-full absolute top-16 left-0 right-0 ${collapsedIconTransitionClass} ${isHydrated && collapsed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
@@ -233,7 +229,7 @@ export default function HomeLayout({ products }: { products: any[] }) {
           className={`w-full ${contentTransitionClass} ${collapsed ? "opacity-0 pointer-events-none h-0" : "opacity-100 h-auto"}`}
           style={{ transitionDelay: contentTransitionDelay }}
         >
-          {isHydrated && !collapsed && <Cart hideTitle />}
+          {isHydrated && !collapsed && <Cart hideTitle header={null} />}
         </div>
       </div>
       {/* Mobile sticky cart for sm and xs only */}

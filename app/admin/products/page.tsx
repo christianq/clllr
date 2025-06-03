@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Alert } from "@/components/ui/alert";
+import Link from "next/link";
 
 interface ProductPhoto {
   _id?: Id<"products">;
@@ -25,6 +26,7 @@ interface ProductPhoto {
   originalPrice?: string;
   dealPrice?: string;
   dealExpiresAt?: number;
+  ownerId?: Id<"users">;
 }
 
 function DisplayImage({ fileId, alt }: { fileId: Id<"_storage">, alt: string }) {
@@ -198,7 +200,10 @@ function ProductCard({
 }
 
 export default function AdminProductPhotos() {
-  const products = useQuery(api.products.listProducts, {}) as (ProductPhoto[] | undefined);
+  const [selectedUser, setSelectedUser] = useState<string>("");
+  const users = useQuery(api.users.listUsers, {}) ?? [];
+  const ownerId = selectedUser ? (selectedUser as Id<"users">) : undefined;
+  const products = useQuery(api.products.listProducts, ownerId ? { ownerId } : {}) as (ProductPhoto[] | undefined);
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
   const saveImageMetadata = useMutation(api.files.saveImageMetadata);
   const [refreshImages, setRefreshImages] = useState(0);
@@ -245,6 +250,7 @@ export default function AdminProductPhotos() {
         originalPrice: edited.originalPrice,
         dealPrice: edited.dealPrice,
         dealExpiresAt: edited.dealExpiresAt ? Number(edited.dealExpiresAt) : undefined,
+        ownerId: (edited.ownerId as Id<"users">) || ownerId!,
       });
       setStatus("Saved successfully!");
       setEditing((prev) => {
@@ -258,6 +264,10 @@ export default function AdminProductPhotos() {
   };
 
   const handleCreate = async () => {
+    if (!ownerId) {
+      setStatus("Please select a user to create a product for.");
+      return;
+    }
     try {
       await upsertProduct({
         type: "",
@@ -267,6 +277,7 @@ export default function AdminProductPhotos() {
         imageId: images[0]?._id,
         filename: "new-product.png",
         status: "draft",
+        ownerId,
       });
       setStatus("Created new product!");
     } catch (err: any) {
@@ -324,6 +335,20 @@ export default function AdminProductPhotos() {
           <div className="w-full border-b border-border/40 mb-6" />
         </header>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div className="flex flex-col gap-2 sm:w-1/2">
+            <label htmlFor="user-filter" className="text-sm font-medium">Filter by User</label>
+            <select
+              id="user-filter"
+              value={selectedUser}
+              onChange={e => setSelectedUser(e.target.value)}
+              className="border rounded px-3 py-2"
+            >
+              <option value="">All Users</option>
+              {users.map((user) => (
+                <option key={user._id} value={user._id}>{user.name} ({user.email})</option>
+              ))}
+            </select>
+          </div>
           <Input type="file" accept="image/*" onChange={handleFileChange} className="sm:w-1/2" />
           <Button className="bg-green-600 text-white hover:bg-green-700 w-full sm:w-auto" onClick={handleCreate}>
             New Product

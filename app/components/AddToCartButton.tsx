@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCartStore } from "../store/cartStore";
-import type { Product } from "./ProductGrid";
+import type { Product } from '../../types/product';
 import { Button } from "@/components/ui/button";
 
 export default function AddToCartButton({ product }: { product: Product }) {

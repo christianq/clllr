@@ -10,7 +10,7 @@ export interface Filters {
   colors?: string[];
   sizes?: string[];
   categories?: string[];
-  sortBy?: string;
+  sortBy?: 'priceLowHigh' | 'priceHighLow' | 'newest' | 'oldest' | 'relevance';
 }
 
 const COLOR_OPTIONS = ["Red", "Blue", "Green", "Black", "White"];

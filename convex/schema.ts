@@ -7,6 +7,12 @@ export default defineSchema({
     uploadedBy: v.optional(v.string()), // or v.id("users") if you have users
     createdAt: v.number(),
   }),
+  users: defineTable({
+    name: v.string(),
+    email: v.string(),
+    subdomain: v.string(),
+    role: v.string(), // 'store_owner' or 'customer'
+  }),
   products: defineTable({
     type: v.string(),
     title: v.string(),
@@ -20,7 +26,8 @@ export default defineSchema({
     originalPrice: v.optional(v.string()), // store the original price if a deal is active
     dealPrice: v.optional(v.string()), // store the deal price if a deal is active
     dealExpiresAt: v.optional(v.number()), // optional: timestamp for when the deal ends
-  }),
+    ownerId: v.id("users"), // RESTORED: required again
+  }).index("by_ownerId", ["ownerId"]),
   analytics_events: defineTable({
     type: v.string(), // e.g. 'page_view', 'click'
     timestamp: v.number(),

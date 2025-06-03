@@ -19,7 +19,7 @@ export default function CheckoutPage() {
   const { items: cartItems } = useCartStore(); // Get items from Zustand store
 
   // Calculate total
-  const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const totalAmount = cartItems.reduce((acc, item) => acc + (typeof item.price === 'number' ? item.price * item.quantity : 0), 0);
 
   useEffect(() => {
     // Function to fetch the client secret
@@ -102,7 +102,7 @@ export default function CheckoutPage() {
               <tr key={item.id} className="border-b last:border-b-0">
                 <td className="py-2">{item.name}</td>
                 <td className="text-center py-2">{item.quantity}</td>
-                <td className="text-right py-2">${((item.price * item.quantity) / 100).toFixed(2)}</td>
+                <td className="text-right py-2">${((typeof item.price === 'number' ? item.price * item.quantity : 0) / 100).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
