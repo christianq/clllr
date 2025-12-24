@@ -15,7 +15,7 @@ const GITHUB_USERNAME = 'christianq';
 const GITHUB_REPO = 'clllr';
 const GITHUB_BRANCH = 'main';
 
-const stripe = new Stripe(stripeSecretKey, { apiVersion: '2025-04-30.basil' });
+const stripe = new Stripe(stripeSecretKey, { apiVersion: '2025-05-28.basil' });
 const productPhotosDir = path.resolve(__dirname, '../product-photos');
 
 function getGithubRawUrl(filename: string) {

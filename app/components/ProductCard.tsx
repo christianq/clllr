@@ -7,7 +7,7 @@ const FALLBACK_IMAGE = "/tote-product.png";
 export default function ProductCard({ product }: { product: Product }) {
   return (
     <div
-      className="product-card flex flex-col items-center dark:bg-gray-900 max-w-[500px] w-full mx-auto"
+      className="product-card flex flex-col items-center dark:bg-gray-900 w-full mx-auto"
       role="region"
       aria-label={`Product: ${product.name}`}
     >

@@ -114,7 +114,7 @@ export const publishToStripe = action({
       const stripeSecret = process.env.STRIPE_SECRET_KEY;
       if (!stripeSecret) return { error: "Missing STRIPE_SECRET_KEY env var" };
       const Stripe = (await import("stripe")).default;
-      const stripe = new Stripe(stripeSecret, { apiVersion: "2025-04-30.basil" });
+      const stripe = new Stripe(stripeSecret, { apiVersion: "2025-05-28.basil" });
       // Fetch the image document using a query (actions can't use ctx.db)
       const imageDoc = await ctx.runQuery(api.images.getImage, { id: product.imageId });
       let imageUrl: string | undefined = undefined;
@@ -252,7 +252,7 @@ export const getStripeProduct = action({
     const stripeSecret = process.env.STRIPE_SECRET_KEY;
     if (!stripeSecret) return { error: "Missing STRIPE_SECRET_KEY env var" };
     const Stripe = (await import("stripe")).default;
-    const stripe = new Stripe(stripeSecret, { apiVersion: "2025-04-30.basil" });
+    const stripe = new Stripe(stripeSecret, { apiVersion: "2025-05-28.basil" });
     try {
       const product = await stripe.products.retrieve(stripeProductId);
       // Get the first image if available

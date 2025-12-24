@@ -11,7 +11,7 @@ export default function ProductVariantCard({ variantProducts }: { variantProduct
 
   return (
     <div
-      className="product-card border p-4 flex flex-col items-center shadow bg-white dark:bg-gray-900 max-w-[500px] w-full mx-auto"
+      className="product-card border p-4 flex flex-col items-center shadow bg-white dark:bg-gray-900 w-full mx-auto"
       role="region"
       aria-label={`Product variant: ${selected.name}`}
     >
