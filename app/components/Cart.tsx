@@ -3,22 +3,15 @@
 import { useCartStore } from "../store/cartStore";
 import { useRouter } from 'next/navigation';
 import type { Product } from "../../types/product";
-import { Trash } from "@phosphor-icons/react";
 import CartList from "./CartList";
 import CartFooter from "./CartFooter";
-import { DM_Sans } from "next/font/google";
-
-const dmSans = DM_Sans({ subsets: ["latin"], weight: ["200"] });
+import { calculateTotalAmount } from "../utils/cart";
 
 export default function Cart({ hideTitle = false, header }: { hideTitle?: boolean; header?: React.ReactNode }) {
   const { items, addItem, removeItem, clearCart } = useCartStore();
   const router = useRouter();
 
-  const totalAmount = items.reduce(
-    (acc, item) => acc + (typeof item.price === 'number' ? item.price * item.quantity : 0),
-    0
-  );
-  const totalQty = items.reduce((acc, item) => acc + item.quantity, 0);
+  const totalAmount = calculateTotalAmount(items);
 
   // Decrease quantity, but only remove if user clicks the remove (x) button
   const decreaseQuantity = (item: Product & { quantity: number }) => {

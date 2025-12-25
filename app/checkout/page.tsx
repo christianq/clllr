@@ -6,6 +6,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { useCartStore } from '../store/cartStore'; // Import cart store
 import CheckoutForm from '../components/CheckoutForm'; // Import the form component
 import { DM_Sans } from "next/font/google";
+import { calculateTotalAmount, formatPrice } from '../utils/cart';
 
 // Load Stripe outside of the component render to avoid recreating the Stripe object
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -19,7 +20,7 @@ export default function CheckoutPage() {
   const { items: cartItems } = useCartStore(); // Get items from Zustand store
 
   // Calculate total
-  const totalAmount = cartItems.reduce((acc, item) => acc + (typeof item.price === 'number' ? item.price * item.quantity : 0), 0);
+  const totalAmount = calculateTotalAmount(cartItems);
 
   useEffect(() => {
     // Function to fetch the client secret
@@ -58,7 +59,8 @@ export default function CheckoutPage() {
     };
 
     createPaymentIntent();
-  }, [cartItems]); // Re-run if cart items change (though ideally checkout is initiated once)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount - cart items shouldn't change during checkout
 
   const appearance: StripeElementsOptions['appearance'] = {
     theme: 'stripe',
@@ -102,13 +104,13 @@ export default function CheckoutPage() {
               <tr key={item.id} className="border-b last:border-b-0">
                 <td className="py-2">{item.name}</td>
                 <td className="text-center py-2">{item.quantity}</td>
-                <td className="text-right py-2">${((typeof item.price === 'number' ? item.price * item.quantity : 0) / 100).toFixed(2)}</td>
+                <td className="text-right py-2">{formatPrice(typeof item.price === 'number' ? item.price * item.quantity : 0)}</td>
               </tr>
             ))}
           </tbody>
         </table>
         <div className="text-right font-bold text-lg mt-2">
-          Total: ${(totalAmount / 100).toFixed(2)}
+          Total: {formatPrice(totalAmount)}
         </div>
       </div>
       {/* Pass clientSecret and options to Elements */}

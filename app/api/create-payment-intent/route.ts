@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { CartItem } from '../../store/cartStore'; // Assuming CartItem is defined here
+import { CartItem } from '../../store/cartStore';
+import { calculateTotalAmount } from '../../utils/cart';
 
 // Initialize Stripe with the secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   typescript: true,
 });
-
-// Function to calculate order amount (make sure prices are in cents)
-const calculateOrderAmount = (items: CartItem[]): number => {
-  return items.reduce((acc, item) => acc + (typeof item.price === 'number' ? item.price * item.quantity : 0), 0);
-};
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,7 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
     }
 
-    const amount = calculateOrderAmount(items);
+    const amount = calculateTotalAmount(items);
 
     if (amount <= 0) {
       return NextResponse.json({ error: 'Invalid order amount' }, { status: 400 });

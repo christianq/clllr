@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   PaymentElement,
   LinkAuthenticationElement,
@@ -54,7 +54,12 @@ export default function CheckoutForm() {
       return;
     }
 
-    stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
+    stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent, error }) => {
+      if (error) {
+        console.error('Error retrieving payment intent:', error);
+        setMessage('Failed to retrieve payment status.');
+        return;
+      }
       switch (paymentIntent?.status) {
         case 'succeeded':
           setMessage('Payment succeeded!');
@@ -70,6 +75,9 @@ export default function CheckoutForm() {
           setMessage('Something went wrong.');
           break;
       }
+    }).catch((err) => {
+      console.error('Error retrieving payment intent:', err);
+      setMessage('Failed to retrieve payment status.');
     });
   }, [stripe]);
 
@@ -144,9 +152,13 @@ export default function CheckoutForm() {
     <form id="payment-form" onSubmit={handleSubmit} className="space-y-4">
 
       {/* Customer Dropdown */}
+      {/* NOTE: Currently, the customer selection doesn't update the PaymentIntent because
+          it's created before this form renders. To make this functional, either:
+          1. Move customer selection to the checkout page before PaymentIntent creation, or
+          2. Update the PaymentIntent via API when customer selection changes */}
       <div className="mb-4">
         <label htmlFor="customer-select" className="block text-sm font-medium text-gray-700 mb-1">
-          Select Customer
+          Select Customer (Demo Only)
         </label>
         <select
           id="customer-select"
@@ -162,16 +174,11 @@ export default function CheckoutForm() {
             </option>
           ))}
         </select>
-        {/* TODO: Fetch real customers and handle selection properly,
-             potentially re-fetching the PaymentIntent with the new customer ID if needed,
-             although it's better to create it with the ID initially. */}
       </div>
 
       {/* Optional: Email input for Link (Stripe's fast checkout) */}
       <LinkAuthenticationElement
         id="link-authentication-element"
-        // @ts-expect-error - Stripe types might be slightly off depending on version
-        onChange={(e) => setEmail(e.target.value)}
         className="mb-4"
       />
 
